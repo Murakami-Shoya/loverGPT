@@ -1,0 +1,24 @@
+jupyter
+jupyterlab
+numpy
+pandas
+matplotlib
+scikit-learn
+scikit-image
+scipy
+seaborn
+tqdm
+# albumentations
+# tensorflow-gpu
+# Pillow
+# opencv-python
+# opencv-contrib-python
+# efficientnet_pytorch
+torch 
+torchvision 
+torchaudio
+transformers
+datasets
+accelerate
+bitsandbytes
+sentencepiece
