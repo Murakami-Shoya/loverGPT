@@ -59,7 +59,7 @@ def convert_to_json(lst:list, boy_name:str, girl_name:str) -> None:
 
     dict = {"time": "", "speaker": "", "text": ""}
     for i in range(0, len(lst)):
-        line = lst[i].strip()
+        line = lst[i]
         time, name, message = line.split("\t", 2)
 
         dict['time'] = time
