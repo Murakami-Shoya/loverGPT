@@ -3,8 +3,9 @@
 # TODO boyかgirlかを切り替えられるようにする
 
 import json
+import settings
 
-def create_io_json(json_file, user='boy', conversation_num=3*2-1):
+def create_io_json(json_file, user='boy', conversation_num=1):
     """
     input, instruction, output の形式にする
     """
@@ -27,3 +28,44 @@ def create_io_json(json_file, user='boy', conversation_num=3*2-1):
     
     with open('io_dataset.json', 'w') as f:
         json.dump(io_json, f, indent=2)
+
+def prepare_dataset(io_json_file, tokenizer):
+    # データセットの準備
+    with open(io_json_file) as f:
+        io_data = json.load(f)
+    print("データ数:", len(io_data))
+
+    train_dataset = []
+    val_dataset = []
+
+    for i in range(len(io_data)):
+        if i % 5 == 0:
+            x = _tokenize(_generate_train_prompt(io_data[i]), tokenizer)
+            val_dataset.append(x)
+        else:
+            x = _tokenize(_generate_train_prompt(io_data[i]), tokenizer)
+            train_dataset.append(x)
+    return train_dataset, val_dataset
+
+def _generate_train_prompt(io_data):
+    # プロンプトテンプレートの準備
+    result = f"""{io_data["input"]}
+    システム: {io_data["output"]}
+    """
+    # 改行→<NL>
+    result = result.replace('\n', '<NL>')
+    return result
+
+# トークナイズ関数
+def _tokenize(prompt, tokenizer):
+    result = tokenizer(
+        prompt,
+        truncation=True,
+        max_length=settings.CUTOFF_LEN,
+        padding=False,
+    )
+    return {
+        "input_ids": result["input_ids"],
+        "attention_mask": result["attention_mask"],
+    }
+

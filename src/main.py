@@ -1,14 +1,17 @@
 import settings
 from create_datset_from_line import *
-from prompt import create_io_json
+from prompt import create_io_json, prepare_dataset
+from train import load_model, my_train
 
 from pprint import pprint
 
 def main():
-    pass
+    train_dataset, val_dataset = prepare_dataset('/code/io_dataset.json', settings.tokenizer)
+    model, trainer = load_model(settings.model_name, train_dataset, val_dataset)
+    my_train(model, trainer)
 
 def create_dataset(txt_file):
-    txt_list = txt_to_list('./small_chat_dataset.txt')
+    txt_list = txt_to_list(txt_file)
     extracted_list = extract_only_chat(txt_list)
     extracted_list = flatten_multiline(extracted_list)
     extracted_list = concat_and_detail(extracted_list)
@@ -19,4 +22,6 @@ def create_dataset(txt_file):
 if __name__ == '__main__':
     main()
     # test()
-    # create_dataset('./small_chat_dataset.txt')
+    # create_dataset('/code/talk_dataset.txt')
+
+    
