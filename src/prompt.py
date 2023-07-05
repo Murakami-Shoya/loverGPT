@@ -5,7 +5,7 @@
 import json
 import settings
 
-def create_io_json(json_file, user='boy', conversation_num=1):
+def create_io_json(json_file, user='boy'):
     """
     input, instruction, output の形式にする
     """
@@ -13,21 +13,29 @@ def create_io_json(json_file, user='boy', conversation_num=1):
 
     with open(json_file) as f:
         chat_json = json.load(f)
-    for i in range(0, len(chat_json), conversation_num+1):
+
+    speaker = lambda _i: '### ユーザ' if chat_json[_i]['speaker'] == user else '### 恋人'
+    for i in range(0, len(chat_json), 2):
         try:
-            speaker = lambda _i: 'ユーザ' if chat_json[_i]['speaker'] == user else 'システム'
-            input = '\n'.join([f"{speaker(j)}: {chat_json[j]['text']}" for j in range(i, i+conversation_num)])
-            output = chat_json[i+conversation_num]['text']
-            dict = {"input": input,
-                    "instruction": None,
+            if (speaker(i)!='### ユーザ'):
+                i += 1
+            # instruction = '\n'.join([f"{speaker(j)}: {chat_json[j]['text']}" for j in range(i, i+conversation_num)])
+            instruction = f"{speaker(i)}: {chat_json[i]['text']}"
+            input = f"{speaker(i-1)}: {chat_json[i-1]['text']}"
+            output = f"{speaker(i+1)}: {chat_json[i+1]['text']}"
+            dict = {"instruction":instruction,
+                    "input": input,
                     "output": output}
             io_json.append(dict)
         except IndexError as e:
             print(e)
             break
-    
+    # print(io_json[:2], io_json[-2:])
     with open('io_dataset.json', 'w') as f:
         json.dump(io_json, f, indent=2)
+
+    print(_generate_train_prompt(io_json[0]))
+    print(_generate_train_prompt(io_json[-1]))
 
 def prepare_dataset(io_json_file, tokenizer):
     # データセットの準備
@@ -49,8 +57,10 @@ def prepare_dataset(io_json_file, tokenizer):
 
 def _generate_train_prompt(io_data):
     # プロンプトテンプレートの準備
-    result = f"""{io_data["input"]}
-    システム: {io_data["output"]}
+    result = f"""以下は、ユーザと恋人とのチャットです。
+    {io_data["input"]}
+    {io_data["instruction"]}
+    {io_data["output"]}
     """
     # 改行→<NL>
     result = result.replace('\n', '<NL>')
@@ -69,3 +79,9 @@ def _tokenize(prompt, tokenizer):
         "attention_mask": result["attention_mask"],
     }
 
+# create_io_json('/code/chat_dataset.json')
+
+# with open('/code/io_dataset.json') as f:
+#     io_data = json.load(f)
+#     # print(io_data[0])
+#     print(_generate_train_prompt(io_data[-1]))

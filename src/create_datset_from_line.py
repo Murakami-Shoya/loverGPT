@@ -70,7 +70,10 @@ def concat_and_detail(txt_list):
 # def finalize_processing(txt_list: list) -> list:
 #     return txt_list
 
-def convert_to_json(txt_list:list, boy_name:str, girl_name:str) -> None:
+def convert_to_json(txt_list:list, boy_name:str, girl_name:str) -> str:
+    """
+    jsonのファイルパスを返す
+    """
     dict_list = []
 
     dict = {"time": "", "speaker": "", "text": ""}
@@ -85,8 +88,10 @@ def convert_to_json(txt_list:list, boy_name:str, girl_name:str) -> None:
             dict["speaker"] = "girl"
         dict_list.append(dict.copy())
 
-    with open('chat_dataset.json', 'w') as f:
+    json_file_paht = 'io_dataset.json'
+    with open(json_file_paht, 'w') as f:
         json.dump(dict_list, f, indent=2)
+    return json_file_paht
 
 
 # txt_list = txt_to_list('./small_chat_dataset.txt')
